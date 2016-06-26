@@ -1,17 +1,33 @@
-var PlayMusic = require('playmusic');
-var pm = new PlayMusic();
-var util = require('util');
+var PlayMusic = require('playmusic'),
+  util = require('util');
 
-var credentials = require('./credentials');
-
-var playlists = {};
+var pm = new PlayMusic(),
+  credentials = require('./credentials'),
+  playlists = {},
+  playlistInfo = {};
 
 pm.init(credentials, function(err) {
   if (err) { console.error(err); }
-  getPlaylistPage();
+
+  getPlaylists();
 });
 
+function getPlaylists() {
+  console.log("Fetching playlist info...");
+  pm.getPlayLists(function(err, data) {
+    for (var index in data.data.items) {
+      var playlist = data.data.items[index];
+      playlistInfo[playlist.id] = playlist.name;
+    }
+
+    console.log("Fetched playlist info.");
+
+    getPlaylistPage();
+  });
+}
+
 function getPlaylistPage(nextPageToken) {
+  console.log("Fetching tracks in playlists...");
   var opts = {};
   if (nextPageToken) {
     opts.nextPageToken = nextPageToken;
@@ -22,6 +38,7 @@ function getPlaylistPage(nextPageToken) {
     if (data.nextPageToken) {
       getPlaylistPage(data.nextPageToken);
     } else {
+      console.log("Fetched tracks in playlists.");
       displayResults();
     }
   });
@@ -38,20 +55,27 @@ function groomPlaylistData(playlistData) {
 }
 
 function displayResults() {
-  var aquaMixId = '8074debf-38d2-364c-94de-95ddaff2a0a8';
-  if (playlists.hasOwnProperty(aquaMixId)) {
-    var playlist = playlists[aquaMixId];
-    console.log("Aqua Mix playlist:");
-    var tracks = {};
+  for (var key in playlists) {
+    var playlist = playlists[key],
+      tracks = [],
+      tracksToRemove = [];
+
+    console.log("Cleaning up playlist '"  + playlistInfo[key] + "'");
+
     for (var index in playlist) {
       var track = playlist[index];
-      if (!tracks.hasOwnProperty(track.trackId)) {
-        tracks[track.trackId] = 0;
+      if (tracks.indexOf(track.trackId) === -1) {
+        tracks.push(track.trackId);
+      } else {
+        tracksToRemove.push(track.id);
       }
-      tracks[track.trackId]++;
     }
-    console.log(tracks);
-  } else {
-    console.log('couldn\'t find aqua mix');
+
+    console.log("Removing " + tracksToRemove.length + " tracks from playlist...");
+    console.log("");
+
+    pm.removePlayListEntry(tracksToRemove, function(err, data) {
+      if (err) { console.error(err); }
+    });
   }
 }

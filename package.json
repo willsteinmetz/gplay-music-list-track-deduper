@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "playmusic": "^2.1.1"
+    "playmusic": "git+https://github.com/jamon/playmusic.git#master"
   }
 }
