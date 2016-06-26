@@ -4,6 +4,10 @@ Frustrated with Google Play Music Manager duplicating all of the tracks on your 
 
 This node script removes duplicate tracks from Google Play Music playlists.
 
+## Setup
+
+Copy the file `credentials.json.example` to `credentials.json` and update your e-mail address and password in the file.
+
 ## Usage
 
 ```shell
