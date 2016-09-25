@@ -71,11 +71,16 @@ function displayResults() {
       }
     }
 
-    console.log("Removing " + tracksToRemove.length + " tracks from playlist...");
-    console.log("");
+    if (tracksToRemove.length) {
+      console.log("Removing " + tracksToRemove.length + " tracks from playlist...");
+      console.log("");
 
-    pm.removePlayListEntry(tracksToRemove, function(err, data) {
-      if (err) { console.error(err); }
-    });
+      pm.removePlayListEntry(tracksToRemove, function(err, data) {
+        if (err) { console.error(err); }
+      });
+    } else {
+      console.log("This playlist is clear of duplicates.");
+      console.log('');
+    }
   }
 }
